@@ -11,33 +11,31 @@ class FeedbackController extends Controller
 {
     public function store(Request $request)
     {
-        //Validation rules Added
         $rules = [
-            'customer_name' => 'required|string|max:255',      
-            'message' => 'required|string|max:1000',             
-            'rating' => 'required|integer|between:1,5',          
-            'created_at' => 'nullable|date',                     
+            'customer_name' => 'required|string|min:3|max:255',
+            'message' => 'required|string|min:5|max:1000',
+            'rating' => 'required|integer|between:1,5',
+            'created_at' => 'nullable|date',
         ];
 
-        // Custom error messages
-        $messages = [
+        $validator = Validator::make($request->all(), $rules, [
             'customer_name.required' => 'The customer name is required.',
+            'customer_name.min' => 'Name should at least be 3 characters.',
+            'message.min' => 'Message should at least be 5 characters.',
             'message.required' => 'The feedback message is required.',
             'rating.required' => 'The rating is required.',
             'rating.between' => 'The rating must be between 1 and 5.',
             'created_at.date' => 'The creation date must be a valid date.',
-        ];
-
-        // Validate the request data
-        $validator = Validator::make($request->all(), $rules, $messages);
+        ]);
 
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
+                'message' => 'Validation errors',
                 'errors' => $validator->errors()
-            ], 422); // Return validation errors with a 422 Unprocessable Entity status
+            ], 422);
         }
 
-        // If validation passes, store the feedback
         $feedback = Feedback::create([
             'customer_name' => $request->customer_name,
             'message' => $request->message,
@@ -46,26 +44,26 @@ class FeedbackController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Feedback stored successfully!',
-            'feedback' => $feedback
-        ], 201); // Return success response with 201 status
+            'data' => $feedback
+        ], 201);
     }
 
     public function index(Request $request)
     {
-        $feedbacks = Feedback::orderBy('created_at', 'desc');
-
-        // Filter by rating if the 'rating' query parameter is provided
-        if ($request->has('rating')) {
-            $rating = $request->query('rating');
-            $feedbacks = $feedbacks->where('rating', $rating);
-        }
-
-        // Fetch the 10 most recent feedbacks
-        $feedbacks = $feedbacks->limit(10)->get();
+        $feedbacks = Feedback::query()
+            ->when($request->has('rating'), function ($query) use ($request) {
+                $query->where('rating', $request->query('rating'));
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
 
         return response()->json([
-            'feedback' => $feedbacks
-        ], 200);
+            'success' => true,
+            'message' => 'Feedbacks retrieved successfully',
+            'data' => $feedbacks
+        ]);
     }
 }
