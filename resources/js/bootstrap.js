@@ -1,4 +1,3 @@
-import axios from 'axios';
-window.axios = axios;
-
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+import 'bootstrap'; // if you're using Bootstrap
+import { createApp } from 'vue'; // if you're using Vue
+import './components/FeedbackForm'; // Import your components (optional, Vue-specific)
