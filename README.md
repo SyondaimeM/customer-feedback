@@ -3,6 +3,9 @@
 ## Overview
 This project is a full-stack application built using Laravel for the backend and React for the frontend. The application allows customers to submit feedback, view submitted feedback, and filter feedback by rating. The project demonstrates API development, form validation, data handling, and frontend display using modern web development practices.
 
+## Demo Site Link
+[Customer Feedback App Demo](https://customer-feedback.neoztech.com/)
+
 ## Technologies Used
 - **Backend**: Laravel (PHP)
 - **Frontend**: React (JavaScript)
